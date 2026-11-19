@@ -13,6 +13,7 @@ import type { ApplicationHistory } from '@/domain/insights';
 
 import type { Database } from '../core/database.types';
 import { SUPABASE } from '../core/supabase';
+import { DataRevision } from './data-revision';
 
 type Tables = Database['public']['Tables'];
 type ApplicationRow = Tables['applications']['Row'];
@@ -75,7 +76,7 @@ export function toStatusEvent(row: StatusEventRow): StatusEvent {
 }
 
 /** Supabase meldet Fehler als Rückgabewert; hier werden sie zu Ausnahmen */
-function unwrap<T>({ data, error }: { data: T; error: unknown }): T {
+export function unwrap<T>({ data, error }: { data: T; error: unknown }): T {
   if (error) throw error;
   return data;
 }
@@ -91,6 +92,14 @@ function unwrap<T>({ data, error }: { data: T; error: unknown }): T {
 @Injectable({ providedIn: 'root' })
 export class ApplicationsRepository {
   private readonly supabase = inject(SUPABASE);
+  private readonly revision = inject(DataRevision);
+
+  /** Wie `unwrap`, meldet den Schreibvorgang aber an offene Seiten */
+  private written<T>(result: { data: T; error: unknown }): T {
+    const data = unwrap(result);
+    this.revision.bump();
+    return data;
+  }
 
   /** Nicht gelöschte Bewerbungen, neueste zuerst */
   async listActive(): Promise<JobApplication[]> {
@@ -120,7 +129,7 @@ export class ApplicationsRepository {
   async create(input: ApplicationInput, now = new Date()): Promise<JobApplication> {
     const id = createId();
     const timestamp = now.toISOString();
-    unwrap(
+    this.written(
       await this.supabase
         .from('applications')
         .insert({ ...toColumns(input), id, created_at: timestamp, updated_at: timestamp }),
@@ -130,12 +139,12 @@ export class ApplicationsRepository {
 
   /** Speichert alle Felder; einen geänderten Status protokolliert die Datenbank */
   async update(id: string, input: ApplicationInput): Promise<void> {
-    unwrap(await this.supabase.from('applications').update(toColumns(input)).eq('id', id));
+    this.written(await this.supabase.from('applications').update(toColumns(input)).eq('id', id));
   }
 
   /** Ändert den Status in einer Anweisung. false, wenn sich nichts ändert. */
   async changeStatus(id: string, to: ApplicationStatus): Promise<boolean> {
-    const rows = unwrap(
+    const rows = this.written(
       await this.supabase
         .from('applications')
         .update({ status: to })
@@ -148,7 +157,7 @@ export class ApplicationsRepository {
 
   /** Anzeigentext nachtragen, ohne die übrigen Felder anzufassen */
   async setJobDescription(id: string, text: string): Promise<void> {
-    unwrap(
+    this.written(
       await this.supabase
         .from('applications')
         .update({ job_description: text.trim() || null })
@@ -158,7 +167,7 @@ export class ApplicationsRepository {
 
   /** Weiches Löschen: Eintrag verschwindet aus allen Listen, lässt sich aber zurückholen */
   async archive(id: string, now = new Date()): Promise<void> {
-    unwrap(
+    this.written(
       await this.supabase
         .from('applications')
         .update({ archived_at: now.toISOString() })
@@ -167,7 +176,9 @@ export class ApplicationsRepository {
   }
 
   async restore(id: string): Promise<void> {
-    unwrap(await this.supabase.from('applications').update({ archived_at: null }).eq('id', id));
+    this.written(
+      await this.supabase.from('applications').update({ archived_at: null }).eq('id', id),
+    );
   }
 
   async statusEvents(applicationId: string): Promise<StatusEvent[]> {

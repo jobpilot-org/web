@@ -7,6 +7,7 @@
   --accent: light-dark(#2f5bd3, #7d9cf0);
   --danger: light-dark(#b42318, #f97066);
   --on-accent: light-dark(#ffffff, #0d1530);
+  --accent-soft: light-dark(#eef2fd, #1b2440);
 }
 
 body {
@@ -48,4 +49,30 @@ button {
     opacity: 0.6;
     cursor: default;
   }
+}
+
+a {
+  color: var(--accent);
+}
+
+button.danger {
+  background: var(--danger);
+  color: var(--on-accent);
+}
+
+button.link-button {
+  padding: 0;
+  margin-left: 8px;
+  background: none;
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

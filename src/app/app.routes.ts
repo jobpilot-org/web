@@ -14,5 +14,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./applications/applications.page').then((m) => m.ApplicationsPage),
   },
+  {
+    path: 'bewerbung/:id',
+    title: 'Bewerbung – jobpilot',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./applications/detail/application-detail.page').then((m) => m.ApplicationDetailPage),
+  },
   { path: '**', redirectTo: '' },
 ];

@@ -1,0 +1,169 @@
+<nav class="back"><a routerLink="/">← Bewerbungen</a></nav>
+
+@if (detail.hasValue()) {
+  @let data = detail.value();
+  @if (data === null) {
+    <main>
+      <h1>Nicht gefunden</h1>
+      <p class="hint">Diese Bewerbung gibt es nicht (mehr).</p>
+    </main>
+  } @else {
+    @let application = data.application;
+    <main>
+      <header class="header">
+        <h1>{{ application.company }}</h1>
+        <p class="role">{{ application.role }}</p>
+        @if (placeLabel(application); as place) {
+          <p class="hint">{{ place }}</p>
+        }
+      </header>
+
+      <div class="statuses" role="group" aria-label="Status">
+        @for (status of statuses; track status) {
+          <button
+            type="button"
+            class="chip"
+            [class.selected]="status === application.status"
+            [attr.aria-pressed]="status === application.status"
+            [disabled]="isBusy()"
+            (click)="changeStatus(status)"
+          >
+            {{ statusLabels[status] }}
+          </button>
+        }
+      </div>
+
+      @if (actionError(); as message) {
+        <p class="form-error" role="alert">{{ message }}</p>
+      }
+
+      @if (application.nextStep) {
+        <section class="next-step">
+          <span class="eyebrow">Nächster Schritt</span>
+          <p>{{ application.nextStep }}</p>
+        </section>
+      }
+
+      <section>
+        <h2>Eckdaten</h2>
+        <dl class="facts">
+          @for (fact of factsOf(application); track fact.label) {
+            <dt>{{ fact.label }}</dt>
+            <dd>
+              @if (fact.url) {
+                <a [href]="fact.url" target="_blank" rel="noopener">{{ fact.value }} ↗</a>
+              } @else {
+                {{ fact.value }}
+              }
+            </dd>
+          }
+        </dl>
+      </section>
+
+      <section>
+        <h2>Termine</h2>
+        @for (appointment of data.appointments; track appointment.id) {
+          <div class="item">
+            <strong>{{ appointmentKindLabels[appointment.kind] }}</strong>
+            <span>{{ formatAppointmentTime(appointment.startsAt) }}</span>
+            @if (appointment.location) {
+              <span class="hint">{{ appointment.location }}</span>
+            }
+          </div>
+        } @empty {
+          <p class="hint">Keine Termine.</p>
+        }
+      </section>
+
+      <section>
+        <h2>Kontakte</h2>
+        @for (contact of data.contacts; track contact.id) {
+          <div class="item">
+            <strong>{{ contact.name }}</strong>
+            @if (contact.role) {
+              <span class="hint">{{ contact.role }}</span>
+            }
+            <span class="links">
+              @if (contact.email) {
+                <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+              }
+              @if (contact.phone) {
+                <a [href]="'tel:' + contact.phone">{{ contact.phone }}</a>
+              }
+              @if (contact.linkedinUrl) {
+                <a [href]="contact.linkedinUrl" target="_blank" rel="noopener">LinkedIn ↗</a>
+              }
+            </span>
+          </div>
+        } @empty {
+          <p class="hint">Keine Kontakte.</p>
+        }
+      </section>
+
+      <section>
+        <h2>Notizen</h2>
+        <form class="note-form" (submit)="$event.preventDefault(); addNote()">
+          <label for="note" class="visually-hidden">Neue Notiz</label>
+          <textarea
+            id="note"
+            rows="3"
+            placeholder="Neue Notiz …"
+            [value]="noteDraft()"
+            (input)="noteDraft.set($any($event.target).value)"
+          ></textarea>
+          <button type="submit" [disabled]="isBusy() || !noteDraft().trim()">
+            Notiz speichern
+          </button>
+        </form>
+        @for (note of data.notes; track note.id) {
+          <div class="item note">
+            <p>{{ note.body }}</p>
+            <span class="hint">
+              {{ formatTimelineDate(note.createdAt) }}
+              <button
+                type="button"
+                class="link-button"
+                [disabled]="isBusy()"
+                (click)="deleteNote(note.id)"
+              >
+                Löschen
+              </button>
+            </span>
+          </div>
+        }
+      </section>
+
+      <section>
+        <h2>Verlauf</h2>
+        <ol class="timeline">
+          @for (item of timeline(); track $index) {
+            <li [class.status]="item.kind === 'status'">
+              <span>{{ describeTimelineItem(item) }}</span>
+              <span class="hint">{{ formatTimelineDate(item.at) }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+
+      <section class="danger-zone">
+        <button
+          type="button"
+          class="danger"
+          [disabled]="isBusy()"
+          (click)="remove(application.company)"
+        >
+          Bewerbung löschen
+        </button>
+      </section>
+    </main>
+  }
+} @else if (detail.error()) {
+  <main>
+    <p class="form-error" role="alert">
+      Die Bewerbung konnte nicht geladen werden.
+      <button type="button" class="secondary" (click)="detail.reload()">Erneut versuchen</button>
+    </p>
+  </main>
+} @else {
+  <main><p class="hint">Lädt …</p></main>
+}
