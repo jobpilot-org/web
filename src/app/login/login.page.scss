@@ -1,0 +1,33 @@
+.login {
+  max-width: 360px;
+  margin: 15vh auto 0;
+  padding: 0 16px;
+}
+
+.lead {
+  color: var(--text-secondary);
+  margin-top: 0;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.field-error,
+.form-error {
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+
+button {
+  margin-top: 12px;
+}

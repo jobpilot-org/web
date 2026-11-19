@@ -1,1 +1,51 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  color-scheme: light dark;
+  --text: light-dark(#1b1b1f, #ececf1);
+  --text-secondary: light-dark(#5c5c66, #a3a3ad);
+  --background: light-dark(#ffffff, #121214);
+  --border: light-dark(#e4e4e9, #2c2c31);
+  --accent: light-dark(#2f5bd3, #7d9cf0);
+  --danger: light-dark(#b42318, #f97066);
+  --on-accent: light-dark(#ffffff, #0d1530);
+}
+
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+  color: var(--text);
+  background: var(--background);
+}
+
+input {
+  font: inherit;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+  cursor: pointer;
+
+  &.secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}

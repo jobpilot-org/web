@@ -1,0 +1,42 @@
+<header class="bar">
+  <h1>Bewerbungen</h1>
+  <span class="account">
+    {{ auth.email() }}
+    <button type="button" class="secondary" (click)="auth.signOut()">Abmelden</button>
+  </span>
+</header>
+
+<main>
+  @if (applications.isLoading()) {
+    <p class="hint">Lädt …</p>
+  } @else if (applications.error()) {
+    <p class="form-error" role="alert">
+      Bewerbungen konnten nicht geladen werden.
+      <button type="button" class="secondary" (click)="applications.reload()">
+        Erneut versuchen
+      </button>
+    </p>
+  } @else {
+    @let list = applications.value() ?? [];
+    @if (list.length === 0) {
+      <p class="hint">Noch keine Bewerbungen.</p>
+    } @else {
+      <ul class="list">
+        @for (application of list; track application.id) {
+          <li>
+            <div>
+              <strong>{{ application.company }}</strong>
+              <span class="secondary-text"
+                >{{ application.role }} · {{ application.location }}</span
+              >
+              @if (formatSalary(application.salaryMin, application.salaryMax); as salary) {
+                <span class="secondary-text">{{ salary }}</span>
+              }
+            </div>
+            <span class="status">{{ statusLabels[application.status] }}</span>
+          </li>
+        }
+      </ul>
+    }
+  }
+</main>
