@@ -85,32 +85,12 @@ function unwrap<T>({ data, error }: { data: T; error: unknown }): T {
  * asynchron. RLS beschränkt alle Abfragen auf die Zeilen des angemeldeten Nutzers, `user_id`
  * setzt die Datenbank selbst.
  *
- * Bewerbung und Statusereignis werden nacheinander geschrieben, nicht in einer Transaktion: Schlägt
- * das zweite Schreiben fehl, fehlt dieser Eintrag im Verlauf.
+ * Den Statusverlauf schreibt ein Trigger in der Datenbank, in derselben Anweisung wie die Änderung;
+ * `status_events` ist für die App nur lesbar.
  */
 @Injectable({ providedIn: 'root' })
 export class ApplicationsRepository {
   private readonly supabase = inject(SUPABASE);
-
-  private async insertEvent(
-    applicationId: string,
-    from: ApplicationStatus | null,
-    to: ApplicationStatus,
-    at: string,
-  ) {
-    unwrap(
-      await this.supabase
-        .from('status_events')
-        .insert({ application_id: applicationId, from_status: from, to_status: to, at }),
-    );
-  }
-
-  private async currentStatus(id: string): Promise<ApplicationStatus | undefined> {
-    const row = unwrap(
-      await this.supabase.from('applications').select('status').eq('id', id).maybeSingle(),
-    );
-    return row?.status as ApplicationStatus | undefined;
-  }
 
   /** Nicht gelöschte Bewerbungen, neueste zuerst */
   async listActive(): Promise<JobApplication[]> {
@@ -145,26 +125,25 @@ export class ApplicationsRepository {
         .from('applications')
         .insert({ ...toColumns(input), id, created_at: timestamp, updated_at: timestamp }),
     );
-    await this.insertEvent(id, null, input.status, timestamp);
     return { ...input, id };
   }
 
-  /** Speichert alle Felder; ein geänderter Status wird wie bei changeStatus protokolliert */
-  async update(id: string, input: ApplicationInput, now = new Date()): Promise<void> {
-    const current = await this.currentStatus(id);
-    if (!current) return;
-    const timestamp = now.toISOString();
+  /** Speichert alle Felder; einen geänderten Status protokolliert die Datenbank */
+  async update(id: string, input: ApplicationInput): Promise<void> {
     unwrap(await this.supabase.from('applications').update(toColumns(input)).eq('id', id));
-    if (current !== input.status) await this.insertEvent(id, current, input.status, timestamp);
   }
 
-  /** Ändert den Status und protokolliert den Wechsel. false, wenn sich nichts ändert. */
-  async changeStatus(id: string, to: ApplicationStatus, now = new Date()): Promise<boolean> {
-    const current = await this.currentStatus(id);
-    if (!current || current === to) return false;
-    unwrap(await this.supabase.from('applications').update({ status: to }).eq('id', id));
-    await this.insertEvent(id, current, to, now.toISOString());
-    return true;
+  /** Ändert den Status in einer Anweisung. false, wenn sich nichts ändert. */
+  async changeStatus(id: string, to: ApplicationStatus): Promise<boolean> {
+    const rows = unwrap(
+      await this.supabase
+        .from('applications')
+        .update({ status: to })
+        .eq('id', id)
+        .neq('status', to)
+        .select('id'),
+    );
+    return (rows ?? []).length > 0;
   }
 
   /** Anzeigentext nachtragen, ohne die übrigen Felder anzufassen */
