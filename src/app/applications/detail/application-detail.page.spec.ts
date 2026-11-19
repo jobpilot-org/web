@@ -60,7 +60,7 @@ describe('ApplicationDetailPage', () => {
 
   it('markiert den aktuellen Status und ändert ihn per Klick', async () => {
     const { element, applications } = await render();
-    const chips = [...element.querySelectorAll<HTMLButtonElement>('.statuses button')];
+    const chips = [...element.querySelectorAll<HTMLButtonElement>('[role="group"][aria-label="Status"] button')];
     expect(
       chips.find((chip) => chip.getAttribute('aria-pressed') === 'true')?.textContent,
     ).toContain('Beworben');

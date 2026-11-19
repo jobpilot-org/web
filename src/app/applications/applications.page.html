@@ -1,47 +1,64 @@
-<header class="bar">
-  <h1>Bewerbungen</h1>
-  <span class="account">
-    {{ auth.email() }}
-    <button type="button" class="secondary" (click)="auth.signOut()">Abmelden</button>
-  </span>
-</header>
+<main class="jp-page">
+  <header class="jp-page-header">
+    <div class="jp-page-header__copy">
+      <p class="jp-eyebrow">Deine Pipeline</p>
+      <h1 class="jp-title">Bewerbungen</h1>
+    </div>
+  </header>
 
-<main>
   @if (applications.hasValue()) {
     @let list = applications.value();
+    <div class="list-header">
+      <h2>
+        Alle <span class="jp-muted count">{{ list.length }}</span>
+      </h2>
+    </div>
+
     @if (list.length === 0) {
-      <p class="hint">Noch keine Bewerbungen.</p>
+      <p class="jp-muted">Noch keine Bewerbungen.</p>
     } @else {
       <ul class="list">
         @for (application of list; track application.id) {
           <li>
-            <a [routerLink]="['/bewerbung', application.id]">
-              <span class="text">
-                <strong>{{ application.company }}</strong>
-                <span class="secondary-text">
+            <a class="row" [routerLink]="['/bewerbung', application.id]">
+              <span
+                class="jp-avatar jp-avatar--{{ avatarVariant(application.company) }}"
+                aria-hidden="true"
+                >{{ application.company.charAt(0).toUpperCase() }}</span
+              >
+              <span class="details">
+                <span class="title-line">
+                  <span class="company">{{ application.company }}</span>
+                  <span class="date jp-muted">{{ formatShortDay(application.appliedAt) }}</span>
+                </span>
+                <span class="role jp-muted">
                   {{ application.role }}
                   @if (placeLabel(application); as place) {
                     · {{ place }}
                   }
                 </span>
-                @if (formatSalary(application.salaryMin, application.salaryMax); as salary) {
-                  <span class="secondary-text">{{ salary }}</span>
-                }
+                <span class="jp-status-badge" [attr.data-status]="application.status">
+                  <span class="jp-status-dot"></span>
+                  {{ statusLabels[application.status] }}
+                </span>
               </span>
-              <span class="status">{{ statusLabels[application.status] }}</span>
             </a>
           </li>
         }
       </ul>
     }
   } @else if (applications.error()) {
-    <p class="form-error" role="alert">
+    <p class="jp-error" role="alert">
       Bewerbungen konnten nicht geladen werden.
-      <button type="button" class="secondary" (click)="applications.reload()">
+      <button
+        type="button"
+        class="jp-button jp-button--secondary jp-button--compact"
+        (click)="applications.reload()"
+      >
         Erneut versuchen
       </button>
     </p>
   } @else {
-    <p class="hint">Lädt …</p>
+    <p class="jp-muted">Lädt …</p>
   }
 </main>

@@ -1,151 +1,182 @@
-:host {
-  display: block;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 16px 48px;
+// Aufbau wie bewerbung/[id]/index.tsx und detail/sections.tsx der mobile-app
+.back {
+  margin-bottom: 18px;
 }
 
-.back {
-  padding: 16px 0 0;
+.back-link {
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .header {
-  h1 {
-    margin-bottom: 4px;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
 
   p {
     margin: 0;
   }
+}
+
+.company {
+  margin: 0;
+  font-family: var(--jp-font-serif);
+  font-size: 32px;
+  line-height: 38px;
+  font-weight: 400;
 }
 
 .role {
-  font-size: 1.125rem;
+  font-size: 17px;
+  line-height: 23px;
+  font-weight: 600;
 }
 
-.statuses {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 20px 0;
+.place {
+  font-size: 14px;
 }
 
-.chip {
-  padding: 6px 12px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text);
-
-  &.selected {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: var(--on-accent);
-  }
+.action-error {
+  margin: 12px 0 0;
+  font-size: 13px;
 }
 
 .next-step {
-  padding: 12px 16px;
-  border-radius: 8px;
-  background: var(--accent-soft);
-
-  p {
-    margin: 4px 0 0;
-  }
+  margin-top: 16px;
+  border-radius: 12px;
 }
 
-.eyebrow {
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-secondary);
+.next-step-text {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
 }
 
-h2 {
-  font-size: 1rem;
-  margin: 28px 0 8px;
+.empty {
+  margin: 0;
+  padding: 15px;
+  font-size: 13px;
+  line-height: 19px;
 }
 
 .facts {
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  gap: 8px 24px;
   margin: 0;
+}
+
+.fact {
+  justify-content: space-between;
+  font-size: 14px;
 
   dt {
-    color: var(--text-secondary);
+    flex: none;
   }
 
   dd {
+    min-width: 0;
     margin: 0;
-    overflow-wrap: anywhere;
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 
-.item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-
-  p {
-    margin: 0;
-    white-space: pre-wrap;
-  }
+.contact-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  font-size: 13px;
 }
 
 .links {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  margin-top: 2px;
+  font-size: 12px;
 }
 
 .note-form {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end;
   gap: 8px;
-  margin-bottom: 8px;
 
   textarea {
     width: 100%;
-    box-sizing: border-box;
-    font: inherit;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: transparent;
-    color: inherit;
   }
+}
+
+.note {
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--jp-border);
+
+  p {
+    margin: 0 0 4px;
+    font-size: 14px;
+    line-height: 20px;
+    white-space: pre-wrap;
+  }
+}
+
+.note-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
 }
 
 .timeline {
   list-style: none;
   margin: 0;
-  padding: 0 0 0 16px;
-  border-left: 2px solid var(--border);
+  padding: 0 4px;
 
   li {
+    position: relative;
     display: flex;
     flex-direction: column;
-    padding: 6px 0;
+    gap: 2px;
+    padding: 0 0 16px 22px;
+
+    // Verbindungslinie zwischen den Punkten
+    &:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      bottom: 0;
+      left: 4px;
+      width: 2px;
+      background: var(--jp-border);
+    }
   }
+}
 
-  .status span:first-child {
-    font-weight: 600;
+.timeline-dot {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--jp-accent-text);
+  border-radius: 5px;
+  background: var(--jp-background-selected);
+
+  .is-status & {
+    background: var(--jp-accent-text);
   }
 }
 
-.danger-zone {
-  margin-top: 40px;
+.timeline-text {
+  font-size: 14px;
+  line-height: 20px;
 }
 
-.hint {
-  color: var(--text-secondary);
+.timeline-date {
+  font-size: 12px;
 }
 
-.form-error {
-  color: var(--danger);
+.delete {
+  width: 100%;
+  margin-top: 32px;
 }

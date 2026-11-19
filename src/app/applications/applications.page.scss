@@ -1,62 +1,72 @@
-.bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 0 16px;
+// Zeilen wie application-row.tsx
+.list-header {
+  margin-top: 28px;
+
+  h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+  }
 }
 
-.account {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: var(--text-secondary);
-}
-
-main {
-  padding: 0 16px;
+.count {
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .list {
   list-style: none;
+  margin: 8px 0 0;
   padding: 0;
-  margin: 0;
+}
 
-  li {
-    border-bottom: 1px solid var(--border);
-  }
+.row {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 88px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--jp-border);
+  color: inherit;
+  text-decoration: none;
 
-  a {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 12px 0;
-    color: inherit;
-    text-decoration: none;
-
-    &:hover strong {
-      text-decoration: underline;
-    }
-  }
-
-  .text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  &:hover {
+    opacity: 0.75;
   }
 }
 
-.secondary-text,
-.hint {
-  color: var(--text-secondary);
+.details {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
-.status {
-  font-size: 0.875rem;
+.title-line {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.company {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 15px;
+  line-height: 20px;
+  font-weight: 600;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.form-error {
-  color: var(--danger);
+.date {
+  font-size: 11px;
+  line-height: 16px;
+}
+
+.role {
+  font-size: 12px;
+  line-height: 17px;
 }

@@ -14,7 +14,13 @@ import { ApplicationsRepository } from '../../data/applications.repository';
 import { reloadOnDataChange } from '../../data/data-revision';
 import { DetailsRepository } from '../../data/details.repository';
 import { ToastService } from '../../ui/toast.service';
-import { describeTimelineItem, factsOf, formatTimelineDate, placeLabel } from '../presentation';
+import {
+  avatarVariant,
+  describeTimelineItem,
+  factsOf,
+  formatTimelineDate,
+  placeLabel,
+} from '../presentation';
 
 /** Detailseite einer Bewerbung: Status, Eckdaten, Termine, Kontakte, Notizen und Verlauf */
 @Component({
@@ -60,6 +66,7 @@ export class ApplicationDetailPage {
   protected readonly describeTimelineItem = describeTimelineItem;
   protected readonly factsOf = factsOf;
   protected readonly placeLabel = placeLabel;
+  protected readonly avatarVariant = avatarVariant;
 
   protected readonly noteDraft = signal('');
   protected readonly isBusy = signal(false);

@@ -1,14 +1,13 @@
 import { Component, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { formatSalary, STATUS_LABELS } from '@/domain/application';
+import { STATUS_LABELS } from '@/domain/application';
 
-import { AuthService } from '../core/auth.service';
 import { ApplicationsRepository } from '../data/applications.repository';
 import { reloadOnDataChange } from '../data/data-revision';
-import { placeLabel } from './presentation';
+import { avatarVariant, formatShortDay, placeLabel } from './presentation';
 
-/** Erste Ansicht: alle laufenden Bewerbungen des angemeldeten Nutzers */
+/** Alle laufenden Bewerbungen des angemeldeten Nutzers – aufgebaut wie der Tab „Bewerbungen“ */
 @Component({
   selector: 'app-applications-page',
   imports: [RouterLink],
@@ -16,13 +15,13 @@ import { placeLabel } from './presentation';
   styleUrl: './applications.page.scss',
 })
 export class ApplicationsPage {
-  protected readonly auth = inject(AuthService);
   private readonly repository = inject(ApplicationsRepository);
 
   protected readonly applications = resource({ loader: () => this.repository.listActive() });
   protected readonly statusLabels = STATUS_LABELS;
-  protected readonly formatSalary = formatSalary;
   protected readonly placeLabel = placeLabel;
+  protected readonly formatShortDay = formatShortDay;
+  protected readonly avatarVariant = avatarVariant;
 
   constructor() {
     reloadOnDataChange(this.applications);
