@@ -1,0 +1,241 @@
+<main class="jp-page">
+  <form class="jp-form" novalidate (submit)="$event.preventDefault(); submit()">
+    <header class="jp-page-header form-header">
+      <div class="jp-page-header__copy">
+        <p class="jp-eyebrow">{{ id() ? 'Bearbeiten' : 'Neu' }}</p>
+        <h1 class="jp-title">{{ id() ? 'Bewerbung bearbeiten' : 'Neue Bewerbung' }}</h1>
+      </div>
+    </header>
+
+    @switch (loadState()) {
+      @case ('loading') {
+        <p class="jp-muted">Lädt …</p>
+      }
+      @case ('missing') {
+        <p class="jp-muted">Diese Bewerbung gibt es nicht (mehr).</p>
+        <a routerLink="/bewerbungen">Zur Liste</a>
+      }
+      @default {
+        @let v = values();
+        @let e = errors();
+
+        <label class="jp-field">
+          <span class="jp-field__label">Unternehmen</span>
+          <input
+            class="jp-input"
+            [value]="v.company"
+            (input)="set('company', text($event))"
+            placeholder="z. B. Nordlicht Software"
+            [attr.aria-invalid]="!!e.company"
+          />
+          @if (e.company) {
+            <span class="jp-field__message">{{ e.company }}</span>
+          }
+        </label>
+
+        <label class="jp-field">
+          <span class="jp-field__label">Position</span>
+          <input
+            class="jp-input"
+            [value]="v.role"
+            (input)="set('role', text($event))"
+            placeholder="z. B. Senior Fullstack Developer"
+            [attr.aria-invalid]="!!e.role"
+          />
+          @if (e.role) {
+            <span class="jp-field__message">{{ e.role }}</span>
+          }
+        </label>
+
+        <p class="jp-form-group" id="status-label">Status</p>
+        <div class="jp-chips form-chips" role="radiogroup" aria-labelledby="status-label">
+          @for (status of statuses; track status) {
+            <button
+              type="button"
+              role="radio"
+              class="jp-chip"
+              [class.is-active]="v.status === status"
+              [attr.aria-checked]="v.status === status"
+              (click)="set('status', status)"
+            >
+              {{ statusLabels[status] }}
+            </button>
+          }
+        </div>
+
+        <label class="jp-field">
+          <span class="jp-field__label">{{
+            v.status === 'saved' ? 'Gemerkt am' : 'Beworben am'
+          }}</span>
+          <input
+            class="jp-input"
+            type="date"
+            [value]="v.appliedAt"
+            (input)="set('appliedAt', text($event))"
+            [attr.aria-invalid]="!!e.appliedAt"
+          />
+          @if (e.appliedAt) {
+            <span class="jp-field__message">{{ e.appliedAt }}</span>
+          }
+        </label>
+
+        <div class="jp-field">
+          <span class="jp-field__label" id="priority-label">Priorität</span>
+          <div class="jp-segmented" role="radiogroup" aria-labelledby="priority-label">
+            @for (priority of priorities; track priority) {
+              <button
+                type="button"
+                role="radio"
+                class="jp-segmented__option"
+                [class.is-selected]="v.priority === priority"
+                [attr.aria-checked]="v.priority === priority"
+                (click)="set('priority', priority)"
+              >
+                {{ priorityLabels[priority] }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <p class="jp-form-group">Stelle</p>
+
+        <label class="jp-field">
+          <span class="jp-field__label">Ort</span>
+          <input
+            class="jp-input"
+            [value]="v.location"
+            (input)="set('location', text($event))"
+            placeholder="z. B. München"
+          />
+        </label>
+
+        <div class="jp-field">
+          <span class="jp-field__label" id="work-mode-label">Arbeitsmodell</span>
+          <div class="jp-segmented" role="radiogroup" aria-labelledby="work-mode-label">
+            @for (mode of workModes; track mode.value) {
+              <button
+                type="button"
+                role="radio"
+                class="jp-segmented__option"
+                [class.is-selected]="v.workMode === mode.value"
+                [attr.aria-checked]="v.workMode === mode.value"
+                (click)="set('workMode', mode.value)"
+              >
+                {{ mode.label }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="jp-form-row">
+          <label class="jp-field">
+            <span class="jp-field__label">Gehalt von (€/Jahr)</span>
+            <input
+              class="jp-input"
+              inputmode="numeric"
+              [value]="v.salaryMin"
+              (input)="set('salaryMin', text($event))"
+              placeholder="70.000"
+              [attr.aria-invalid]="!!e.salaryMin"
+            />
+            @if (e.salaryMin) {
+              <span class="jp-field__message">{{ e.salaryMin }}</span>
+            }
+          </label>
+          <label class="jp-field">
+            <span class="jp-field__label">bis (€/Jahr)</span>
+            <input
+              class="jp-input"
+              inputmode="numeric"
+              [value]="v.salaryMax"
+              (input)="set('salaryMax', text($event))"
+              placeholder="85.000"
+              [attr.aria-invalid]="!!e.salaryMax"
+            />
+            @if (e.salaryMax) {
+              <span class="jp-field__message">{{ e.salaryMax }}</span>
+            }
+          </label>
+        </div>
+
+        <label class="jp-field">
+          <span class="jp-field__label">Link zur Stellenanzeige</span>
+          <input
+            class="jp-input"
+            type="url"
+            [value]="v.jobUrl"
+            (input)="set('jobUrl', text($event))"
+            placeholder="https://…"
+            [attr.aria-invalid]="!!e.jobUrl"
+          />
+          @if (e.jobUrl) {
+            <span class="jp-field__message">{{ e.jobUrl }}</span>
+          }
+        </label>
+
+        <label class="jp-field source-field">
+          <span class="jp-field__label">Quelle</span>
+          <input
+            class="jp-input"
+            [value]="v.source"
+            (input)="set('source', text($event))"
+            placeholder="Wo hast du die Stelle gefunden?"
+          />
+        </label>
+        <div class="jp-chips form-chips" role="group" aria-label="Vorschläge für die Quelle">
+          @for (source of sourceSuggestions; track source) {
+            <button
+              type="button"
+              class="jp-chip"
+              [class.is-active]="v.source === source"
+              [attr.aria-pressed]="v.source === source"
+              (click)="set('source', source)"
+            >
+              {{ source }}
+            </button>
+          }
+        </div>
+
+        <p class="jp-form-group">Planung</p>
+
+        <label class="jp-field">
+          <span class="jp-field__label">Nächster Schritt</span>
+          <textarea
+            class="jp-input"
+            [value]="v.nextStep"
+            (input)="set('nextStep', text($event))"
+            placeholder="z. B. Anschreiben bis Freitag fertigstellen"
+          ></textarea>
+        </label>
+
+        <label class="jp-field">
+          <span class="jp-field__label">Text der Stellenanzeige (optional)</span>
+          <textarea
+            class="jp-input"
+            [value]="v.jobDescription"
+            (input)="set('jobDescription', text($event))"
+            placeholder="Hier einfügen – Grundlage für den KI-Assistenten"
+            [attr.aria-invalid]="!!e.jobDescription"
+          ></textarea>
+          @if (e.jobDescription) {
+            <span class="jp-field__message">{{ e.jobDescription }}</span>
+          }
+        </label>
+
+        @if (hasErrors()) {
+          <p class="jp-error summary" role="alert">Bitte prüfe die markierten Felder.</p>
+        }
+        @if (saveError(); as message) {
+          <p class="jp-error summary" role="alert">{{ message }}</p>
+        }
+
+        <div class="jp-form-actions">
+          <a class="jp-button jp-button--secondary" [routerLink]="cancelLink()">Abbrechen</a>
+          <button class="jp-button" type="submit" [disabled]="isSaving()">
+            {{ isSaving() ? 'Speichern …' : 'Speichern' }}
+          </button>
+        </div>
+      }
+    }
+  </form>
+</main>

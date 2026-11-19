@@ -5,6 +5,7 @@ import type { JobApplication } from '@/domain/application';
 
 import { ApplicationsRepository } from '../../data/applications.repository';
 import { DetailsRepository } from '../../data/details.repository';
+import { RemindersRepository } from '../../data/reminders.repository';
 import { ApplicationDetailPage } from './application-detail.page';
 
 const application: JobApplication = {
@@ -39,6 +40,7 @@ async function render({ found }: { found: JobApplication | undefined } = { found
       provideRouter([]),
       { provide: ApplicationsRepository, useValue: applications },
       { provide: DetailsRepository, useValue: details },
+      { provide: RemindersRepository, useValue: { forApplication: vi.fn(async () => []) } },
     ],
   });
   const fixture = TestBed.createComponent(ApplicationDetailPage);
@@ -60,7 +62,9 @@ describe('ApplicationDetailPage', () => {
 
   it('markiert den aktuellen Status und ändert ihn per Klick', async () => {
     const { element, applications } = await render();
-    const chips = [...element.querySelectorAll<HTMLButtonElement>('[role="group"][aria-label="Status"] button')];
+    const chips = [
+      ...element.querySelectorAll<HTMLButtonElement>('[role="group"][aria-label="Status"] button'),
+    ];
     expect(
       chips.find((chip) => chip.getAttribute('aria-pressed') === 'true')?.textContent,
     ).toContain('Beworben');

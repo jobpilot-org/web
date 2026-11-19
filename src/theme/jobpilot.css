@@ -360,11 +360,143 @@ textarea.jp-input {
   resize: vertical;
 }
 
+/* Ein/Aus-Schalter (Switch der mobile-app) als Checkbox mit role="switch" */
+.jp-switch {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  border-radius: 13px;
+  background: var(--jp-background-selected);
+  appearance: none;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+    transition: transform 0.15s;
+  }
+
+  &:checked {
+    background: var(--jp-accent);
+  }
+
+  &:checked::after {
+    transform: translateX(18px);
+  }
+}
+
+/* Formulare (application-form.tsx): schmale Spalte, Gruppen-Überschriften, Aktionen unten */
+.jp-form {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.jp-form-group {
+  margin: 14px 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--jp-text-secondary);
+}
+
+.jp-form-row {
+  display: flex;
+  gap: 12px;
+
+  & > * {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.jp-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+
+  & > * {
+    flex: 1;
+  }
+}
+
 .jp-field__message {
   margin: 0;
   font-size: 12px;
   line-height: 17px;
   color: var(--jp-danger);
+}
+
+/* Suchfeld mit Lupe (search-field.tsx) */
+.jp-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid var(--jp-border);
+  border-radius: 12px;
+  background: var(--jp-background-element);
+  color: var(--jp-text-secondary);
+
+  & input {
+    flex: 1;
+    min-width: 0;
+    height: 46px;
+    border: 0;
+    background: transparent;
+    color: var(--jp-text);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--jp-accent-text);
+    outline-offset: 2px;
+  }
+}
+
+/* Auswahl aus wenigen Optionen nebeneinander (segmented-control.tsx) */
+.jp-segmented {
+  display: flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--jp-background-selected);
+}
+
+.jp-segmented__option {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--jp-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &.is-selected {
+    background: var(--jp-background-element);
+    color: var(--jp-text);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  }
 }
 
 /* ---------------------------------------------------------------------------------------------

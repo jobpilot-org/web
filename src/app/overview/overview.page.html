@@ -1,0 +1,98 @@
+<main class="jp-page">
+  <div class="intro">
+    <p class="jp-eyebrow eyebrow">Dein Karriere-Dashboard · {{ greetingDate }}</p>
+    <h1 class="title">Deine Suche,<br />mit Überblick.</h1>
+  </div>
+
+  @if (data.hasValue()) {
+    @let d = data.value();
+    <nav class="metrics" aria-label="Kennzahlen">
+      @for (metric of metrics; track metric.filter) {
+        <a
+          class="metric"
+          routerLink="/bewerbungen"
+          [queryParams]="{ filter: metric.filter }"
+          [attr.aria-label]="counts()[metric.filter] + ' ' + metric.label + ', Liste öffnen'"
+        >
+          <span class="metric-value">{{
+            counts()[metric.filter].toString().padStart(2, '0')
+          }}</span>
+          <span class="metric-label">{{ metric.label }}</span>
+        </a>
+      }
+    </nav>
+
+    @if (focus(); as f) {
+      <section class="focus">
+        <div class="focus-topline">
+          <span class="focus-icon" aria-hidden="true">{{ f.icon }}</span>
+          <span class="jp-eyebrow focus-eyebrow">{{ f.eyebrow }}</span>
+        </div>
+        <p class="focus-title">{{ f.title }}</p>
+        <p class="focus-text">{{ f.text }}</p>
+        <a class="focus-link" [routerLink]="f.link"
+          >{{ f.linkLabel }} <span aria-hidden="true">↗</span></a
+        >
+      </section>
+    }
+
+    @if (d.due.length) {
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Heute fällig</h2>
+        </div>
+        <div class="jp-card">
+          <app-reminder-list [reminders]="d.due" [linkToApplication]="true" />
+        </div>
+      </section>
+    }
+
+    @if (d.upcoming.length > 1) {
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Nächste 7 Tage</h2>
+        </div>
+        <div class="jp-card">
+          @for (appointment of d.upcoming.slice(1); track appointment.id) {
+            <a class="jp-row row-link" [routerLink]="['/bewerbung', appointment.applicationId]">
+              <span class="jp-row__icon" aria-hidden="true">◷</span>
+              <span class="jp-row__copy">
+                <span class="jp-row__title"
+                  >{{ appointment.company }} · {{ kindLabels[appointment.kind] }}</span
+                >
+                <span class="jp-row__subtitle">{{
+                  formatAppointmentTime(appointment.startsAt)
+                }}</span>
+              </span>
+            </a>
+          }
+        </div>
+      </section>
+    }
+
+    @if (d.applications.length) {
+      <div class="recent-heading">
+        <h2>Zuletzt aktiv</h2>
+        <a routerLink="/bewerbungen" class="see-all">Alle ansehen</a>
+      </div>
+      <ul class="recent">
+        @for (application of d.applications.slice(0, 3); track application.id) {
+          <li><app-application-row [application]="application" /></li>
+        }
+      </ul>
+    }
+  } @else if (data.error()) {
+    <p class="jp-error" role="alert">
+      Die Übersicht konnte nicht geladen werden.
+      <button
+        type="button"
+        class="jp-button jp-button--secondary jp-button--compact"
+        (click)="data.reload()"
+      >
+        Erneut versuchen
+      </button>
+    </p>
+  } @else {
+    <p class="jp-muted">Lädt …</p>
+  }
+</main>

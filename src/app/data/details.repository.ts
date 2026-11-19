@@ -8,6 +8,7 @@ import type {
   Contact,
   ContactInput,
   Note,
+  UpcomingAppointment,
 } from '@/domain/details';
 
 import type { Database } from '../core/database.types';
@@ -198,5 +199,43 @@ export class DetailsRepository {
 
   async deleteAppointment(id: string): Promise<void> {
     this.written(await this.supabase.from('appointments').delete().eq('id', id));
+  }
+
+  // --- Termine über alle Bewerbungen ---
+
+  /** Termine aller nicht gelöschten Bewerbungen im Zeitraum [from, to), früheste zuerst */
+  async upcomingAppointments(from: Date, to: Date): Promise<UpcomingAppointment[]> {
+    const rows = unwrap(
+      await this.supabase
+        .from('appointments')
+        .select('*, applications!inner(company, role, archived_at)')
+        .is('applications.archived_at', null)
+        .gte('starts_at', from.toISOString())
+        .lt('starts_at', to.toISOString())
+        .order('starts_at'),
+    );
+    return (rows ?? []).map(({ applications, ...row }) => ({
+      ...toAppointment(row),
+      company: applications.company,
+      role: applications.role,
+    }));
+  }
+
+  /** Frühester anstehender Termin je Bewerbung – für Sortierung und Listenzeilen */
+  async nextAppointmentByApplication(now = new Date()): Promise<Map<string, string>> {
+    const rows = unwrap(
+      await this.supabase
+        .from('appointments')
+        .select('application_id, starts_at')
+        .gte('starts_at', now.toISOString())
+        .order('starts_at'),
+    );
+    const next = new Map<string, string>();
+    for (const row of rows ?? []) {
+      if (!next.has(row.application_id)) {
+        next.set(row.application_id, toIsoTimestamp(row.starts_at));
+      }
+    }
+    return next;
   }
 }

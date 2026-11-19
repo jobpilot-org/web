@@ -13,6 +13,8 @@ import { buildTimeline } from '@/domain/timeline';
 import { ApplicationsRepository } from '../../data/applications.repository';
 import { reloadOnDataChange } from '../../data/data-revision';
 import { DetailsRepository } from '../../data/details.repository';
+import { RemindersRepository } from '../../data/reminders.repository';
+import { ReminderList } from '../../reminders/reminder-list';
 import { ToastService } from '../../ui/toast.service';
 import {
   avatarVariant,
@@ -25,7 +27,7 @@ import {
 /** Detailseite einer Bewerbung: Status, Eckdaten, Termine, Kontakte, Notizen und Verlauf */
 @Component({
   selector: 'app-application-detail-page',
-  imports: [RouterLink],
+  imports: [RouterLink, ReminderList],
   templateUrl: './application-detail.page.html',
   styleUrl: './application-detail.page.scss',
 })
@@ -35,6 +37,7 @@ export class ApplicationDetailPage {
 
   private readonly applications = inject(ApplicationsRepository);
   private readonly details = inject(DetailsRepository);
+  private readonly reminders = inject(RemindersRepository);
   private readonly router = inject(Router);
   private readonly toasts = inject(ToastService);
 
@@ -43,14 +46,23 @@ export class ApplicationDetailPage {
     loader: async ({ params: { id } }) => {
       const application = await this.applications.get(id);
       if (!application) return null;
-      const [events, contacts, notes, appointments] = await Promise.all([
+      const [events, contacts, notes, appointments, reminders] = await Promise.all([
         this.applications.statusEvents(id),
         this.details.contacts(id),
         this.details.notes(id),
         this.details.appointments(id),
+        this.reminders.forApplication(id),
       ]);
-      return { application, events, contacts, notes, appointments };
+      return { application, events, contacts, notes, appointments, reminders };
     },
+  });
+
+  /** Vergangene Termine stehen im Verlauf, hier nur die kommenden */
+  protected readonly upcoming = computed(() => {
+    const now = new Date();
+    return (this.detail.value()?.appointments ?? []).filter(
+      (appointment) => new Date(appointment.startsAt) >= now,
+    );
   });
 
   protected readonly timeline = computed(() => {
@@ -116,7 +128,7 @@ export class ApplicationDetailPage {
     const id = this.id();
     return this.run(async () => {
       await this.applications.archive(id);
-      await this.router.navigateByUrl('/');
+      await this.router.navigateByUrl('/bewerbungen');
       this.toasts.show({
         message: `„${company}“ gelöscht`,
         action: { label: 'Rückgängig', run: () => this.applications.restore(id) },
