@@ -42,3 +42,7 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Supabase-Zugang: .env lokal, environment.ts wird daraus erzeugt (scripts/write-environment.mjs)
+.env
+src/environments/environment.ts
