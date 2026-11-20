@@ -209,6 +209,163 @@ export type Database = {
           },
         ];
       };
+      profile_entries: {
+        Row: {
+          created_at: string;
+          description: string | null;
+          end_date: string | null;
+          id: string;
+          is_current: boolean;
+          kind: string;
+          location: string | null;
+          organization: string | null;
+          position: number;
+          start_date: string | null;
+          title: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          description?: string | null;
+          end_date?: string | null;
+          id?: string;
+          is_current?: boolean;
+          kind: string;
+          location?: string | null;
+          organization?: string | null;
+          position?: number;
+          start_date?: string | null;
+          title: string;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          description?: string | null;
+          end_date?: string | null;
+          id?: string;
+          is_current?: boolean;
+          kind?: string;
+          location?: string | null;
+          organization?: string | null;
+          position?: number;
+          start_date?: string | null;
+          title?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      profile_languages: {
+        Row: {
+          created_at: string;
+          id: string;
+          language: string;
+          level: string | null;
+          position: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          id?: string;
+          language: string;
+          level?: string | null;
+          position?: number;
+          user_id?: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          language?: string;
+          level?: string | null;
+          position?: number;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      profile_skills: {
+        Row: {
+          category: string | null;
+          created_at: string;
+          id: string;
+          items: string;
+          position: number;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          category?: string | null;
+          created_at?: string;
+          id?: string;
+          items: string;
+          position?: number;
+          user_id?: string;
+        };
+        Update: {
+          category?: string | null;
+          created_at?: string;
+          id?: string;
+          items?: string;
+          position?: number;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          birth_date: string | null;
+          birth_place: string | null;
+          city: string | null;
+          created_at: string;
+          email: string | null;
+          first_name: string;
+          headline: string | null;
+          last_name: string;
+          onboarded_at: string | null;
+          phone: string | null;
+          postal_code: string | null;
+          street: string | null;
+          summary: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          birth_date?: string | null;
+          birth_place?: string | null;
+          city?: string | null;
+          created_at?: string;
+          email?: string | null;
+          first_name?: string;
+          headline?: string | null;
+          last_name?: string;
+          onboarded_at?: string | null;
+          phone?: string | null;
+          postal_code?: string | null;
+          street?: string | null;
+          summary?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Update: {
+          birth_date?: string | null;
+          birth_place?: string | null;
+          city?: string | null;
+          created_at?: string;
+          email?: string | null;
+          first_name?: string;
+          headline?: string | null;
+          last_name?: string;
+          onboarded_at?: string | null;
+          phone?: string | null;
+          postal_code?: string | null;
+          street?: string | null;
+          summary?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       reminders: {
         Row: {
           application_id: string;
@@ -319,6 +476,7 @@ export type Database = {
     Functions: {
       delete_ai_api_key: { Args: Record<PropertyKey, never>; Returns: undefined };
       get_ai_api_key: { Args: Record<PropertyKey, never>; Returns: string };
+      replace_profile: { Args: { profile: Json }; Returns: undefined };
       save_ai_api_key: {
         Args: { api_key: string };
         Returns: {
