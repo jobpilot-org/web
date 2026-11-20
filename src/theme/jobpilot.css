@@ -1,0 +1,717 @@
+/*
+ * jobpilot – gemeinsames Erscheinungsbild für web-app, desktop-app und admin.
+ *
+ * Quelle der Wahrheit ist die mobile-app: Farben aus `src/theme/colors.ts`, Maße aus `src/ui/*`.
+ * Diese Datei liegt als identische Kopie in jedem Repo; Änderungen in allen Kopien nachziehen
+ * (siehe CLAUDE.md, „Stylingregeln“).
+ */
+
+:root {
+  color-scheme: light dark;
+
+  /* Farben – Colors.light / Colors.dark */
+  --jp-text: light-dark(#202923, #f1f4ef);
+  --jp-text-secondary: light-dark(#68736b, #a9b3ab);
+  --jp-background: light-dark(#f4f6f2, #151a17);
+  --jp-background-element: light-dark(#ffffff, #202722);
+  --jp-background-selected: light-dark(#e5eae4, #303a33);
+  --jp-border: light-dark(#dde3dc, #2a332d);
+  /* Flächen mit --jp-on-accent darauf (Buttons, aktive Filter) */
+  --jp-accent: light-dark(#176b4a, #1e7f58);
+  --jp-on-accent: #ffffff;
+  /* Akzent für Text und Icons auf normalem Hintergrund */
+  --jp-accent-text: light-dark(#176b4a, #6ccb9b);
+  --jp-accent-soft: light-dark(#e4eee7, #1d3328);
+  --jp-accent-soft-text: light-dark(#203d2e, #e2f1e9);
+  --jp-accent-soft-muted: light-dark(#52695b, #a9c4b4);
+  --jp-accent-soft-eyebrow: light-dark(#50715f, #8fd9b0);
+  --jp-danger: light-dark(#b65345, #e08a7c);
+  --jp-overlay: light-dark(rgb(14 22 17 / 0.42), rgb(0 0 0 / 0.55));
+  --jp-chart-bar: light-dark(#176b4a, #4cb07d);
+  --jp-chart-bar-muted: light-dark(#5f9982, #3c7d5b);
+  --jp-chart-grid: light-dark(#dde3dc, #2a332d);
+
+  /* Statusfarben – StatusColors; Text erfüllt WCAG AA auf dem jeweiligen Hintergrund */
+  --jp-status-saved-bg: light-dark(#eceeeb, #262c28);
+  --jp-status-saved-text: light-dark(#56605a, #b5bdb7);
+  --jp-status-saved-dot: light-dark(#8a948d, #7e8781);
+  --jp-status-applied-bg: light-dark(#e9eff8, #1f2a3a);
+  --jp-status-applied-text: light-dark(#45658e, #a9c2e3);
+  --jp-status-applied-dot: #6d8eb8;
+  --jp-status-screening-bg: light-dark(#e6f0f2, #1c2e31);
+  --jp-status-screening-text: light-dark(#2f6570, #9bcfd8);
+  --jp-status-screening-dot: #4c8d99;
+  --jp-status-interview-bg: light-dark(#e2f1e9, #1d3328);
+  --jp-status-interview-text: light-dark(#286448, #8fd9b0);
+  --jp-status-interview-dot: #3e8a63;
+  --jp-status-final-bg: light-dark(#ddefe3, #18392a);
+  --jp-status-final-text: light-dark(#1f5a3d, #a6e6c2);
+  --jp-status-final-dot: light-dark(#2e7a52, #46a26f);
+  --jp-status-offer-bg: light-dark(#fff0d8, #3a2e1a);
+  --jp-status-offer-text: light-dark(#8a5b18, #f0c27a);
+  --jp-status-offer-dot: #d19037;
+  --jp-status-rejected-bg: light-dark(#f8e8e5, #3a2523);
+  --jp-status-rejected-text: light-dark(#99574e, #e8a89d);
+  --jp-status-rejected-dot: #c9786a;
+  --jp-status-withdrawn-bg: light-dark(#efecea, #2c2825);
+  --jp-status-withdrawn-text: light-dark(#6b625c, #c2b8b1);
+  --jp-status-withdrawn-dot: light-dark(#9c928b, #8c827b);
+
+  /* Firmen-Avatare – AvatarColors, gewählt nach dem ersten Buchstaben */
+  --jp-avatar-0: light-dark(#e4eee7, #1d3328);
+  --jp-avatar-1: light-dark(#f5e9dd, #3a2e22);
+  --jp-avatar-2: light-dark(#e5eaf4, #232c3a);
+  --jp-avatar-3: light-dark(#f2e6e8, #382629);
+  --jp-avatar-text: light-dark(#294237, #e2f1e9);
+
+  /* Schriften – Serife nur für große Titel (SerifFont), sonst Systemschrift */
+  --jp-font-serif: Georgia, 'Times New Roman', serif;
+  --jp-font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Layout – CONTENT_MAX_WIDTH bzw. breite Ansichten wie das Board */
+  --jp-content-width: 760px;
+  --jp-wide-width: 1400px;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Grundlagen
+ * ------------------------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--jp-font-sans);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--jp-text);
+  background: var(--jp-background);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--jp-accent-text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--jp-accent-text);
+  outline-offset: 2px;
+}
+
+.jp-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Rahmen: Top-Bar mit Wortmarke und Tabs (app-tabs.web.tsx), Seiteninhalt (screen.tsx)
+ * ------------------------------------------------------------------------------------------- */
+
+.jp-topbar {
+  border-bottom: 1px solid var(--jp-border);
+}
+
+.jp-topbar__inner {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: var(--jp-content-width);
+  margin: 0 auto;
+  padding: 12px 24px;
+}
+
+.jp-brand {
+  margin-right: auto;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--jp-text);
+  text-decoration: none;
+}
+
+/* Der Punkt hinter „jobpilot“ ist Teil des Logos */
+.jp-brand__dot {
+  color: var(--jp-accent-text);
+}
+
+.jp-tab {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--jp-text-secondary);
+  text-decoration: none;
+
+  &:hover {
+    color: var(--jp-text);
+  }
+
+  &.is-active {
+    background: var(--jp-background-selected);
+    color: var(--jp-text);
+  }
+}
+
+.jp-page {
+  width: 100%;
+  max-width: var(--jp-content-width);
+  margin: 0 auto;
+  padding: 22px 24px 48px;
+}
+
+.jp-page--wide {
+  max-width: var(--jp-wide-width);
+}
+
+/* Seitenkopf: Eyebrow über großem Serifentitel, rechts eine Aktion */
+.jp-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.jp-page-header__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.jp-eyebrow {
+  margin: 0;
+  font-size: 10px;
+  line-height: 15px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--jp-accent-text);
+}
+
+.jp-title {
+  margin: 0;
+  font-family: var(--jp-font-serif);
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 400;
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Bedienelemente (button.tsx, chip.tsx, form-field.tsx)
+ * ------------------------------------------------------------------------------------------- */
+
+.jp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--jp-accent);
+  border-radius: 11px;
+  background: var(--jp-accent);
+  color: var(--jp-on-accent);
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.88;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.jp-button--secondary {
+  border-color: var(--jp-border);
+  background: var(--jp-background-element);
+  color: var(--jp-text);
+}
+
+.jp-button--danger {
+  border-color: var(--jp-border);
+  background: var(--jp-background-element);
+  color: var(--jp-danger);
+}
+
+.jp-button--compact {
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Quadratischer Hauptknopf neben dem Seitentitel, z. B. „+“ */
+.jp-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--jp-accent);
+  color: var(--jp-on-accent);
+  font-size: 24px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* Text-Aktion ohne Rahmen, z. B. „Löschen“ in einer Zeile */
+.jp-link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--jp-accent-text);
+  cursor: pointer;
+}
+
+.jp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.jp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--jp-border);
+  border-radius: 18px;
+  background: var(--jp-background-element);
+  color: var(--jp-text);
+  font: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+}
+
+/* Aktiver Filter: volle Akzentfläche */
+.jp-chip.is-active {
+  border-color: var(--jp-accent);
+  background: var(--jp-accent);
+  color: var(--jp-on-accent);
+}
+
+/* Gewählter Status auf der Detailseite: weiche Fläche mit Akzentrand */
+.jp-chip.is-selected {
+  border-color: var(--jp-accent-text);
+  background: var(--jp-accent-soft);
+  color: var(--jp-accent-text);
+}
+
+.jp-chip__count {
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.jp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 15px;
+}
+
+.jp-field__label {
+  font-size: 12px;
+  line-height: 17px;
+  font-weight: 600;
+}
+
+.jp-input {
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid var(--jp-border);
+  border-radius: 10px;
+  background: var(--jp-background-element);
+  color: var(--jp-text);
+  font: inherit;
+  font-size: 15px;
+}
+
+textarea.jp-input {
+  min-height: 96px;
+  padding: 12px 13px;
+  resize: vertical;
+}
+
+/* Ein/Aus-Schalter (Switch der mobile-app) als Checkbox mit role="switch" */
+.jp-switch {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  border-radius: 13px;
+  background: var(--jp-background-selected);
+  appearance: none;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+    transition: transform 0.15s;
+  }
+
+  &:checked {
+    background: var(--jp-accent);
+  }
+
+  &:checked::after {
+    transform: translateX(18px);
+  }
+}
+
+/* Formulare (application-form.tsx): schmale Spalte, Gruppen-Überschriften, Aktionen unten */
+.jp-form {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.jp-form-group {
+  margin: 14px 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--jp-text-secondary);
+}
+
+.jp-form-row {
+  display: flex;
+  gap: 12px;
+
+  & > * {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.jp-form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+
+  & > * {
+    flex: 1;
+  }
+}
+
+.jp-field__message {
+  margin: 0;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--jp-danger);
+}
+
+/* Suchfeld mit Lupe (search-field.tsx) */
+.jp-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid var(--jp-border);
+  border-radius: 12px;
+  background: var(--jp-background-element);
+  color: var(--jp-text-secondary);
+
+  & input {
+    flex: 1;
+    min-width: 0;
+    height: 46px;
+    border: 0;
+    background: transparent;
+    color: var(--jp-text);
+    font: inherit;
+    font-size: 13px;
+    outline: none;
+  }
+
+  &:focus-within {
+    outline: 2px solid var(--jp-accent-text);
+    outline-offset: 2px;
+  }
+}
+
+/* Auswahl aus wenigen Optionen nebeneinander (segmented-control.tsx) */
+.jp-segmented {
+  display: flex;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--jp-background-selected);
+}
+
+.jp-segmented__option {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--jp-text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &.is-selected {
+    background: var(--jp-background-element);
+    color: var(--jp-text);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------
+ * Inhalte: Sektionen, Karten, Zeilen, Status-Badges, Avatare
+ * ------------------------------------------------------------------------------------------- */
+
+.jp-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.jp-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  padding: 0 4px;
+}
+
+.jp-section__title {
+  margin: 0;
+  font-size: 12px;
+  line-height: 17px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--jp-text-secondary);
+}
+
+.jp-card {
+  overflow: hidden;
+  border: 1px solid var(--jp-border);
+  border-radius: 14px;
+  background: var(--jp-background-element);
+}
+
+/* Zeile in einer Karte (list-row.tsx); Trennlinie nur zwischen Zeilen */
+.jp-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 11px 15px;
+
+  & + & {
+    border-top: 1px solid var(--jp-border);
+  }
+}
+
+.jp-row__copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.jp-row__title {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.jp-row__subtitle {
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--jp-text-secondary);
+}
+
+/* Kleines Symbolfeld links in einer Zeile */
+.jp-row__icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--jp-accent-soft);
+  color: var(--jp-accent-text);
+  font-size: 14px;
+}
+
+/* Hervorgehobener Hinweis, z. B. „Nächster Schritt“ */
+.jp-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--jp-accent-soft);
+  color: var(--jp-accent-soft-text);
+
+  & .jp-eyebrow {
+    color: var(--jp-accent-soft-eyebrow);
+  }
+
+  & p {
+    margin: 0;
+  }
+}
+
+.jp-muted {
+  color: var(--jp-text-secondary);
+}
+
+.jp-error {
+  color: var(--jp-danger);
+}
+
+.jp-avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: var(--jp-avatar-0);
+  color: var(--jp-avatar-text);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.jp-avatar--1 {
+  background: var(--jp-avatar-1);
+}
+
+.jp-avatar--2 {
+  background: var(--jp-avatar-2);
+}
+
+.jp-avatar--3 {
+  background: var(--jp-avatar-3);
+}
+
+.jp-status-dot {
+  display: inline-block;
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--jp-status-dot);
+}
+
+.jp-status-badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: var(--jp-status-bg);
+  color: var(--jp-status-text);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Status-Varianten setzen nur die Variablen; Badge und Punkt lesen sie */
+[data-status='saved'] {
+  --jp-status-bg: var(--jp-status-saved-bg);
+  --jp-status-text: var(--jp-status-saved-text);
+  --jp-status-dot: var(--jp-status-saved-dot);
+}
+[data-status='applied'] {
+  --jp-status-bg: var(--jp-status-applied-bg);
+  --jp-status-text: var(--jp-status-applied-text);
+  --jp-status-dot: var(--jp-status-applied-dot);
+}
+[data-status='screening'] {
+  --jp-status-bg: var(--jp-status-screening-bg);
+  --jp-status-text: var(--jp-status-screening-text);
+  --jp-status-dot: var(--jp-status-screening-dot);
+}
+[data-status='interview'] {
+  --jp-status-bg: var(--jp-status-interview-bg);
+  --jp-status-text: var(--jp-status-interview-text);
+  --jp-status-dot: var(--jp-status-interview-dot);
+}
+[data-status='final'] {
+  --jp-status-bg: var(--jp-status-final-bg);
+  --jp-status-text: var(--jp-status-final-text);
+  --jp-status-dot: var(--jp-status-final-dot);
+}
+[data-status='offer'] {
+  --jp-status-bg: var(--jp-status-offer-bg);
+  --jp-status-text: var(--jp-status-offer-text);
+  --jp-status-dot: var(--jp-status-offer-dot);
+}
+[data-status='rejected'] {
+  --jp-status-bg: var(--jp-status-rejected-bg);
+  --jp-status-text: var(--jp-status-rejected-text);
+  --jp-status-dot: var(--jp-status-rejected-dot);
+}
+[data-status='withdrawn'] {
+  --jp-status-bg: var(--jp-status-withdrawn-bg);
+  --jp-status-text: var(--jp-status-withdrawn-text);
+  --jp-status-dot: var(--jp-status-withdrawn-dot);
+}
+
+/* Hinweis unten mittig, z. B. „gelöscht – Rückgängig“ (toast.tsx) */
+.jp-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 12px 10px 16px;
+  border: 1px solid var(--jp-border);
+  border-radius: 14px;
+  background: var(--jp-background-element);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.14);
+  transform: translateX(-50%);
+}

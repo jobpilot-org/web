@@ -1,0 +1,249 @@
+<main class="jp-page">
+  <nav class="back">
+    <a routerLink="/bewerbungen" class="back-link"><span aria-hidden="true">←</span> Bewerbungen</a>
+  </nav>
+
+  @if (detail.hasValue()) {
+    @let data = detail.value();
+    @if (data === null) {
+      <h1 class="jp-title">Nicht gefunden</h1>
+      <p class="jp-muted">Diese Bewerbung gibt es nicht (mehr).</p>
+    } @else {
+      @let application = data.application;
+      <header class="header">
+        <div class="header-copy">
+          <h1 class="company">{{ application.company }}</h1>
+          <p class="role">{{ application.role }}</p>
+          @if (placeLabel(application); as place) {
+            <p class="place jp-muted">{{ place }}</p>
+          }
+        </div>
+        <a
+          class="jp-button jp-button--secondary jp-button--compact"
+          [routerLink]="['/bewerbung', application.id, 'bearbeiten']"
+          >Bearbeiten</a
+        >
+      </header>
+
+      <div class="jp-chips" role="group" aria-label="Status">
+        @for (status of statuses; track status) {
+          <button
+            type="button"
+            class="jp-chip"
+            [attr.data-status]="status"
+            [class.is-selected]="status === application.status"
+            [attr.aria-pressed]="status === application.status"
+            [disabled]="isBusy()"
+            (click)="changeStatus(status)"
+          >
+            <span class="jp-status-dot"></span>
+            {{ statusLabels[status] }}
+          </button>
+        }
+      </div>
+
+      @if (actionError(); as message) {
+        <p class="jp-error action-error" role="alert">{{ message }}</p>
+      }
+
+      @if (application.nextStep) {
+        <section class="jp-callout next-step">
+          <span class="jp-eyebrow">Nächster Schritt</span>
+          <p class="next-step-text">{{ application.nextStep }}</p>
+        </section>
+      }
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Anstehende Termine</h2>
+          <a
+            class="jp-button jp-button--secondary jp-button--compact"
+            [routerLink]="['/bewerbung', application.id, 'termin']"
+            >+ Termin</a
+          >
+        </div>
+        <div class="jp-card">
+          @for (appointment of upcoming(); track appointment.id) {
+            <a
+              class="jp-row row-link"
+              [routerLink]="['/bewerbung', application.id, 'termin']"
+              [queryParams]="{ terminId: appointment.id }"
+              aria-description="Termin bearbeiten"
+            >
+              <span class="jp-row__icon" aria-hidden="true">◷</span>
+              <span class="jp-row__copy">
+                <span class="jp-row__title">{{ formatAppointmentTime(appointment.startsAt) }}</span>
+                <span class="jp-row__subtitle">
+                  {{ appointmentKindLabels[appointment.kind] }}
+                  @if (appointment.location) {
+                    · {{ appointment.location }}
+                  }
+                </span>
+              </span>
+            </a>
+          } @empty {
+            <p class="empty jp-muted">Noch kein Termin geplant.</p>
+          }
+        </div>
+      </section>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Erinnerungen</h2>
+        </div>
+        <div class="jp-card">
+          @if (data.reminders.length) {
+            <app-reminder-list [reminders]="data.reminders" />
+          } @else {
+            <p class="empty jp-muted">
+              Keine offenen Erinnerungen. Nachhaken und Termin-Erinnerungen entstehen automatisch.
+            </p>
+          }
+        </div>
+      </section>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Eckdaten</h2>
+        </div>
+        <dl class="jp-card facts">
+          @for (fact of factsOf(application); track fact.label) {
+            <div class="jp-row fact">
+              <dt class="jp-muted">{{ fact.label }}</dt>
+              <dd>
+                @if (fact.url) {
+                  <a [href]="fact.url" target="_blank" rel="noopener">{{ fact.value }} ↗</a>
+                } @else {
+                  {{ fact.value }}
+                }
+              </dd>
+            </div>
+          }
+        </dl>
+      </section>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Kontakte</h2>
+          <a
+            class="jp-button jp-button--secondary jp-button--compact"
+            [routerLink]="['/bewerbung', application.id, 'kontakt']"
+            >+ Kontakt</a
+          >
+        </div>
+        <div class="jp-card">
+          @for (contact of data.contacts; track contact.id) {
+            <div class="jp-row">
+              <span
+                class="jp-avatar jp-avatar--{{ avatarVariant(contact.name) }} contact-avatar"
+                aria-hidden="true"
+                >{{ contact.name.charAt(0).toUpperCase() }}</span
+              >
+              <span class="jp-row__copy">
+                <a
+                  class="jp-row__title contact-name"
+                  [routerLink]="['/bewerbung', application.id, 'kontakt']"
+                  [queryParams]="{ kontaktId: contact.id }"
+                  [attr.aria-label]="contact.name + ' bearbeiten'"
+                  >{{ contact.name }}</a
+                >
+                @if (contact.role) {
+                  <span class="jp-row__subtitle">{{ contact.role }}</span>
+                }
+                <span class="links">
+                  @if (contact.email) {
+                    <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+                  }
+                  @if (contact.phone) {
+                    <a [href]="'tel:' + contact.phone">{{ contact.phone }}</a>
+                  }
+                  @if (contact.linkedinUrl) {
+                    <a [href]="contact.linkedinUrl" target="_blank" rel="noopener">LinkedIn ↗</a>
+                  }
+                </span>
+              </span>
+            </div>
+          } @empty {
+            <p class="empty jp-muted">Noch keine Kontakte.</p>
+          }
+        </div>
+      </section>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Notizen</h2>
+        </div>
+        <form class="note-form" (submit)="$event.preventDefault(); addNote()">
+          <label for="note" class="jp-visually-hidden">Neue Notiz</label>
+          <textarea
+            id="note"
+            class="jp-input"
+            placeholder="Neue Notiz …"
+            [value]="noteDraft()"
+            (input)="noteDraft.set($any($event.target).value)"
+          ></textarea>
+          <button
+            type="submit"
+            class="jp-button jp-button--compact"
+            [disabled]="isBusy() || !noteDraft().trim()"
+          >
+            Notiz speichern
+          </button>
+        </form>
+        @for (note of data.notes; track note.id) {
+          <div class="note">
+            <p>{{ note.body }}</p>
+            <span class="note-meta jp-muted">
+              {{ formatTimelineDate(note.createdAt) }}
+              <button
+                type="button"
+                class="jp-link-button"
+                [disabled]="isBusy()"
+                (click)="deleteNote(note.id)"
+              >
+                Löschen
+              </button>
+            </span>
+          </div>
+        }
+      </section>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Verlauf</h2>
+        </div>
+        <ol class="timeline">
+          @for (item of timeline(); track $index) {
+            <li [class.is-status]="item.kind === 'status'">
+              <span class="timeline-dot" aria-hidden="true"></span>
+              <span class="timeline-text">{{ describeTimelineItem(item) }}</span>
+              <span class="timeline-date jp-muted">{{ formatTimelineDate(item.at) }}</span>
+            </li>
+          }
+        </ol>
+      </section>
+
+      <button
+        type="button"
+        class="jp-button jp-button--danger delete"
+        [disabled]="isBusy()"
+        (click)="remove(application.company)"
+      >
+        Bewerbung löschen
+      </button>
+    }
+  } @else if (detail.error()) {
+    <p class="jp-error" role="alert">
+      Die Bewerbung konnte nicht geladen werden.
+      <button
+        type="button"
+        class="jp-button jp-button--secondary jp-button--compact"
+        (click)="detail.reload()"
+      >
+        Erneut versuchen
+      </button>
+    </p>
+  } @else {
+    <p class="jp-muted">Lädt …</p>
+  }
+</main>

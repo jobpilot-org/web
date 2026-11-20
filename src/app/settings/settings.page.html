@@ -1,0 +1,114 @@
+<main class="jp-page">
+  <p class="jp-eyebrow">App</p>
+  <h1 class="jp-title">Einstellungen</h1>
+
+  @if (message(); as text) {
+    <p class="jp-error message" role="alert">{{ text }}</p>
+  }
+
+  <section class="jp-section">
+    <div class="jp-section__header">
+      <h2 class="jp-section__title">Konto</h2>
+    </div>
+    <div class="jp-card">
+      <div class="jp-row">
+        <span class="jp-row__copy">
+          <span class="jp-row__title">{{ auth.email() }}</span>
+          <span class="jp-row__subtitle">Angemeldet</span>
+        </span>
+        <button
+          type="button"
+          class="jp-button jp-button--danger jp-button--compact"
+          [disabled]="isBusy()"
+          (click)="signOut()"
+        >
+          Abmelden
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="jp-section">
+    <div class="jp-section__header">
+      <h2 class="jp-section__title">Erinnerungen</h2>
+    </div>
+    <div class="jp-card">
+      <div class="jp-row">
+        <span class="jp-row__copy">
+          <span class="jp-row__title">Im Browser</span>
+          <span class="jp-row__subtitle">
+            Fällige Erinnerungen stehen in der Übersicht; Benachrichtigungen schickt die App auf dem
+            Handy.
+          </span>
+        </span>
+      </div>
+      @if (settings.hasValue()) {
+        @let s = settings.value();
+        <div class="jp-row block">
+          <div class="jp-field follow-up">
+            <span class="jp-field__label" id="follow-up-label"
+              >Nachhaken, wenn sich so lange nichts tut</span
+            >
+            <div class="jp-segmented" role="radiogroup" aria-labelledby="follow-up-label">
+              @for (days of followUpOptions; track days) {
+                <button
+                  type="button"
+                  role="radio"
+                  class="jp-segmented__option"
+                  [class.is-selected]="s.followUpDays === days"
+                  [attr.aria-checked]="s.followUpDays === days"
+                  (click)="save({ followUpDays: days })"
+                >
+                  {{ days === 0 ? 'Aus' : days + ' Tage' }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+        <label class="jp-row">
+          <span class="jp-row__copy">
+            <span class="jp-row__title">Termine</span>
+            <span class="jp-row__subtitle">Am Vortag um 18 Uhr und eine Stunde vorher</span>
+          </span>
+          <input
+            type="checkbox"
+            role="switch"
+            class="jp-switch"
+            [checked]="s.appointments"
+            (change)="save({ appointments: $any($event.target).checked })"
+          />
+        </label>
+        <label class="jp-row">
+          <span class="jp-row__copy">
+            <span class="jp-row__title">Dankeschön</span>
+            <span class="jp-row__subtitle">Am Morgen nach einem Termin</span>
+          </span>
+          <input
+            type="checkbox"
+            role="switch"
+            class="jp-switch"
+            [checked]="s.thankYou"
+            (change)="save({ thankYou: $any($event.target).checked })"
+          />
+        </label>
+      } @else if (settings.error()) {
+        <p class="empty jp-error">Einstellungen konnten nicht geladen werden.</p>
+      }
+    </div>
+  </section>
+
+  <section class="jp-section">
+    <div class="jp-section__header">
+      <h2 class="jp-section__title">Daten sichern</h2>
+    </div>
+    <div class="jp-card">
+      <button type="button" class="jp-row action-row" [disabled]="isBusy()" (click)="exportCsv()">
+        <span class="jp-row__icon" aria-hidden="true">▤</span>
+        <span class="jp-row__copy">
+          <span class="jp-row__title">Als Tabelle exportieren</span>
+          <span class="jp-row__subtitle">CSV-Datei für Excel oder Numbers</span>
+        </span>
+      </button>
+    </div>
+  </section>
+</main>

@@ -1,0 +1,92 @@
+// Abstände wie (tabs)/bewerbungen.tsx der mobile-app
+.search {
+  margin-top: 20px;
+}
+
+.view-toggle {
+  max-width: 260px;
+  margin-top: 14px;
+}
+
+.filters {
+  margin-top: 16px;
+}
+
+.list-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 4px 0 6px;
+
+  h2 {
+    margin: 0;
+    font-size: 15px;
+    line-height: 21px;
+    font-weight: 600;
+  }
+}
+
+.count {
+  margin-left: 6px;
+  color: var(--jp-text-secondary);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.sort {
+  display: flex;
+  gap: 12px;
+}
+
+.sort-option {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--jp-text-secondary);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+
+  &.is-selected {
+    color: var(--jp-accent-text);
+    font-weight: 700;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  margin-top: 12px;
+  padding: 24px;
+  border: 1px dashed var(--jp-background-selected);
+  border-radius: 12px;
+  text-align: center;
+
+  strong {
+    font-size: 15px;
+    line-height: 21px;
+  }
+
+  .jp-muted {
+    max-width: 240px;
+    font-size: 12px;
+    line-height: 18px;
+  }
+}
+
+.empty-icon {
+  color: var(--jp-text-secondary);
+  font-size: 24px;
+}

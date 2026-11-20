@@ -1,1 +1,20 @@
-/* You can add global styles to this file, and also import other style files */
+// Gemeinsames Erscheinungsbild steht in src/theme/jobpilot.css (Kopie aus allen jobpilot-Apps).
+// Hier nur, was es ausschließlich in der web-app gibt.
+
+// Formulare: Chips mit Abstand zum nächsten Feld, Vorschläge dicht unter dem Feld
+.form-chips {
+  margin-bottom: 15px;
+}
+
+.source-field {
+  margin-bottom: 9px;
+}
+
+.summary {
+  margin: 0 0 12px;
+  font-size: 13px;
+}
+
+.form-header {
+  margin-bottom: 18px;
+}

@@ -1,0 +1,170 @@
+<main class="jp-page">
+  <p class="jp-eyebrow">Deine Zahlen</p>
+  <h1 class="jp-title">Auswertung</h1>
+
+  @if (stats(); as s) {
+    @if (s.responses.submitted === 0) {
+      <div class="empty">
+        <strong>Noch keine Daten</strong>
+        <span class="jp-muted">
+          Sobald du dich auf Stellen bewirbst, siehst du hier, wie weit deine Bewerbungen kommen und
+          welche Quellen am besten funktionieren.
+        </span>
+      </div>
+    } @else {
+      <div class="tiles">
+        <div class="tile">
+          <span class="tile-label">Bewerbungen</span>
+          <span class="tile-value">{{ s.responses.submitted }}</span>
+          <span class="tile-note">abgeschickt</span>
+        </div>
+        <div class="tile">
+          <span class="tile-label">Antwortquote</span>
+          <span class="tile-value">{{ percent(s.responses.rate) }}</span>
+          <span class="tile-note">{{ s.responses.responded }} mit Rückmeldung</span>
+        </div>
+        <div class="tile">
+          <span class="tile-label">Ø bis Rückmeldung</span>
+          <span class="tile-value">{{
+            s.responses.averageDays === undefined ? '–' : formatDays(s.responses.averageDays)
+          }}</span>
+          <span class="tile-note">nach dem Abschicken</span>
+        </div>
+        <div class="tile">
+          <span class="tile-label">Angebote</span>
+          <span class="tile-value">{{ s.offers }}</span>
+        </div>
+      </div>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Wie weit kommen deine Bewerbungen?</h2>
+        </div>
+        <div class="jp-card chart">
+          @for (stage of s.stages; track stage.stage) {
+            <div
+              class="funnel-row"
+              [attr.aria-label]="
+                statusLabels[stage.stage] + ': ' + stage.count + ', ' + percent(stage.share)
+              "
+            >
+              <span class="funnel-label">{{ statusLabels[stage.stage] }}</span>
+              <span class="funnel-track">
+                @if (stage.count > 0) {
+                  <span
+                    class="funnel-bar"
+                    [style.width.%]="(stage.count / s.maxStage) * 100"
+                  ></span>
+                }
+              </span>
+              <span class="funnel-value"
+                >{{ stage.count }}<span class="jp-muted"> · {{ percent(stage.share) }}</span></span
+              >
+            </div>
+          }
+        </div>
+      </section>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Abgeschickt pro Woche</h2>
+        </div>
+        <div class="jp-card chart">
+          @let selected = weekIndex(s.weeks);
+          @let current = s.weeks.length - 1;
+          @let shown = s.weeks[selected];
+          <p class="readout" aria-live="polite">
+            <strong>{{ shown.count }} {{ shown.count === 1 ? 'Bewerbung' : 'Bewerbungen' }}</strong>
+            {{ selected === current ? 'diese Woche' : shown.label }}
+          </p>
+          <div class="weekly-plot">
+            <div class="y-axis" aria-hidden="true">
+              <span>{{ s.top }}</span>
+              <span>0</span>
+            </div>
+            <div class="columns">
+              <span class="grid-line top" aria-hidden="true"></span>
+              <span class="grid-line bottom" aria-hidden="true"></span>
+              @for (week of s.weeks; track week.weekStart; let index = $index) {
+                <button
+                  type="button"
+                  class="column"
+                  [attr.aria-pressed]="index === selected"
+                  [attr.aria-label]="
+                    week.label +
+                    ': ' +
+                    week.count +
+                    (week.count === 1 ? ' Bewerbung' : ' Bewerbungen')
+                  "
+                  (click)="selectedWeek.set(index)"
+                  (mouseenter)="selectedWeek.set(index)"
+                >
+                  <span
+                    class="column-bar"
+                    [class.current]="index === current"
+                    [class.dimmed]="index !== selected && selected !== current"
+                    [style.height.px]="barHeight(week.count, s.top)"
+                  ></span>
+                </button>
+              }
+            </div>
+          </div>
+          <div class="x-axis" aria-hidden="true">
+            @for (week of s.weeks; track week.weekStart; let index = $index) {
+              <span [class.is-selected]="index === selected">{{
+                week.label.replace('KW ', '')
+              }}</span>
+            }
+          </div>
+          <p class="axis-title jp-muted">Kalenderwoche</p>
+        </div>
+      </section>
+
+      <section class="jp-section">
+        <div class="jp-section__header">
+          <h2 class="jp-section__title">Erfolg je Quelle</h2>
+        </div>
+        <div class="jp-card">
+          <table class="sources">
+            <thead>
+              <tr>
+                <th scope="col">Quelle</th>
+                <th scope="col" class="number" title="Bewerbungen">Bew.</th>
+                <th scope="col" class="number" title="mit Gespräch">Gespr.</th>
+                <th scope="col" class="number" title="Angebote">Angeb.</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (row of s.sources; track row.source) {
+                <tr>
+                  <td>{{ row.source }}</td>
+                  <td class="number">{{ row.submitted }}</td>
+                  <td class="number">{{ row.interviews }}</td>
+                  <td class="number">{{ row.offers }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <p class="footnote jp-muted">
+        Gezählt wird die höchste erreichte Stufe – eine Absage nach dem Fachgespräch zählt also beim
+        Fachgespräch mit. „Gemerkt“ fließt nicht ein.
+      </p>
+    }
+  } @else if (histories.error()) {
+    <p class="jp-error" role="alert">
+      Die Auswertung konnte nicht geladen werden.
+      <button
+        type="button"
+        class="jp-button jp-button--secondary jp-button--compact"
+        (click)="histories.reload()"
+      >
+        Erneut versuchen
+      </button>
+    </p>
+  } @else {
+    <p class="jp-muted">Lädt …</p>
+  }
+</main>

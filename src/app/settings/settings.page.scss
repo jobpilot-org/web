@@ -1,0 +1,36 @@
+.message {
+  margin: 16px 0 0;
+  font-size: 13px;
+}
+
+.block {
+  display: block;
+}
+
+.follow-up {
+  margin: 0;
+}
+
+label.jp-row {
+  cursor: pointer;
+}
+
+.action-row {
+  width: 100%;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover .jp-row__title {
+    text-decoration: underline;
+  }
+}
+
+.empty {
+  margin: 0;
+  padding: 15px;
+  font-size: 13px;
+}
